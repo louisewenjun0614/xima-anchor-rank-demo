@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>喜马主播榜 Demo</title>
+    <style>
+:root {
+  --red: #ff3b44;
+  --red-deep: #7f0012;
+  --ink: #23242a;
+  --muted: #83858d;
+  --line: #f0f1f4;
+  --panel: #ffffff;
+  --soft: #f7f8fb;
+  --gold: #f7b642;
+  --silver: #b8c1cc;
+  --bronze: #d57c48;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  background: #e9ebf1;
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+button {
+  border: 0;
+  font: inherit;
+}
+
+.phone-shell {
+  width: min(430px, 100vw);
+  min-height: 100vh;
+  background: #111;
+}
+
+.app-screen {
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--soft);
+}
+
+.hero {
+  position: relative;
+  padding: 18px 16px 0;
+  color: #fff;
+  background:
+    radial-gradient(circle at 14% 0%, rgba(255, 63, 83, 0.42), transparent 24%),
+    radial-gradient(circle at 96% 72%, rgba(255, 40, 55, 0.32), transparent 23%),
+    linear-gradient(145deg, #220007 0%, #100003 52%, #36000a 100%);
+}
+
+.statusbar,
+.topbar,
+.tabbar {
+  display: flex;
+  align-items: center;
+}
+
+.statusbar {
+  justify-content: space-between;
+  padding: 2px 4px 18px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.status-icons {
+  font-size: 12px;
+  opacity: 0.86;
+}
+
+.topbar {
+  justify-content: space-between;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 31px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.topbar h1::before,
+.topbar h1::after {
+  content: "‹";
+  display: inline-block;
+  margin: 0 10px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 28px;
+  transform: rotate(-28deg);
+}
+
+.topbar h1::after {
+  transform: rotate(208deg);
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.hero-copy {
+  padding: 24px 4px 16px;
+}
+
+.hero-copy .eyebrow {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12px;
+}
+
+.hero-copy h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.hero-copy p:last-child {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+}
+
+.tabbar {
+  gap: 22px;
+  overflow-x: auto;
+  padding: 8px 2px 12px;
+  scrollbar-width: none;
+}
+
+.tabbar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 8px 0 10px;
+  color: rgba(255, 255, 255, 0.72);
+  background: transparent;
+  font-size: 17px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tab.active {
+  color: #fff;
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--red);
+  transform: translateX(-50%);
+}
+
+.content-panel {
+  min-height: calc(100vh - 230px);
+  margin-top: -2px;
+  border-radius: 18px 18px 0 0;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.notice {
+  margin: 0;
+  padding: 14px 18px 11px;
+  color: #a0a2aa;
+  font-size: 13px;
+  border-bottom: 1px solid var(--line);
+}
+
+.notice:empty {
+  display: none;
+}
+
+.rail-layout {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  min-height: calc(100vh - 284px);
+}
+
+.side-rail {
+  background: #f5f6f8;
+  border-right: 1px solid #eceef2;
+}
+
+.rail-item {
+  position: relative;
+  width: 100%;
+  min-height: 58px;
+  padding: 0 10px;
+  color: #8b8d94;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.rail-item.active {
+  color: var(--red);
+  background: #fff;
+  font-weight: 700;
+}
+
+.rail-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 4px;
+  height: 22px;
+  border-radius: 0 4px 4px 0;
+  background: var(--red);
+}
+
+.rank-area {
+  min-width: 0;
+  padding: 16px 0 30px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px 12px;
+}
+
+.label {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.label:empty {
+  display: none;
+}
+
+.section-head h3 {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+.rule-btn {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  border-radius: 16px;
+  color: var(--red);
+  background: #fff1f2;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rule-card {
+  display: none;
+  margin: 0 16px 14px;
+  padding: 12px;
+  border: 1px solid #ffe0e3;
+  border-radius: 8px;
+  background: #fff8f8;
+  color: #5b4549;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.rule-card.show {
+  display: block;
+}
+
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 12px 14px;
+}
+
+.podium-card {
+  min-width: 0;
+  padding: 10px 8px;
+  border: 1px solid #f1e8de;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fffaf2 0%, #fff 100%);
+  text-align: center;
+}
+
+.podium-card:nth-child(2) {
+  transform: translateY(10px);
+}
+
+.podium-card:nth-child(3) {
+  transform: translateY(16px);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 7px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff5158, #ffb54b);
+  box-shadow: 0 8px 18px rgba(190, 36, 44, 0.16);
+}
+
+.podium-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  color: #fff;
+  background: var(--gold);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.podium-card:nth-child(2) .podium-rank {
+  background: var(--silver);
+}
+
+.podium-card:nth-child(3) .podium-rank {
+  background: var(--bronze);
+}
+
+.podium-name {
+  overflow: hidden;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.podium-meta {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.rank-list {
+  border-top: 1px solid var(--line);
+}
+
+.rank-row {
+  display: grid;
+  grid-template-columns: 36px 58px minmax(0, 1fr);
+  gap: 9px;
+  padding: 14px 16px 13px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rank-num {
+  align-self: center;
+  color: #9699a1;
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.rank-row:nth-child(1) .rank-num,
+.rank-row:nth-child(2) .rank-num,
+.rank-row:nth-child(3) .rank-num {
+  color: var(--red);
+}
+
+.row-main {
+  min-width: 0;
+}
+
+.name-line,
+.metric-line {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.name-line {
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.name {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border-radius: 10px;
+  color: #fff;
+  background: #8967ff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.desc {
+  overflow: hidden;
+  margin: 0 0 8px;
+  color: #767982;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.metric-line {
+  flex-wrap: wrap;
+  gap: 6px;
+  color: #9a9da5;
+  font-size: 12px;
+}
+
+.metric-chip {
+  padding: 3px 7px;
+  border-radius: 12px;
+  background: #f5f6f8;
+}
+
+.empty {
+  margin: 10px 16px;
+  padding: 26px 18px;
+  border: 1px dashed #dedfe4;
+  border-radius: 8px;
+  background: #fafbfc;
+  color: #787b84;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+@media (max-width: 360px) {
+  .rail-layout {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .rank-row {
+    grid-template-columns: 30px 48px minmax(0, 1fr);
+    gap: 7px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <main class="phone-shell">
+      <section class="app-screen">
+        <header class="hero">
+          <div class="statusbar">
+            <span>14:28</span>
+            <span class="status-icons">▮▮▮  WiFi  56</span>
+          </div>
+          <nav class="topbar" aria-label="页面导航">
+            <button class="icon-btn" type="button" aria-label="返回">‹</button>
+            <h1>主播榜</h1>
+            <button class="icon-btn" type="button" aria-label="转发">↗</button>
+          </nav>
+          <div class="hero-copy">
+            <p class="eyebrow">喜马创作者生态周榜</p>
+            <h2>看见影响力，也看见上升力</h2>
+          </div>
+          <div class="tabbar" id="rankTabs" role="tablist" aria-label="榜单切换"></div>
+        </header>
+
+        <section class="content-panel">
+          <div class="notice" id="notice"></div>
+          <div class="rail-layout">
+            <aside class="side-rail" id="sideRail" aria-label="榜单分类"></aside>
+            <section class="rank-area">
+              <div class="section-head">
+                <div>
+                  <p class="label" id="rankCycle"></p>
+                  <h3 id="rankTitle"></h3>
+                </div>
+                <button class="rule-btn" id="ruleToggle" type="button">规则</button>
+              </div>
+
+              <div class="rule-card" id="ruleCard"></div>
+              <div class="podium" id="podium"></div>
+              <div class="rank-list" id="rankList"></div>
+            </section>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script>
+const rankData = {
+  main: {
+    title: "主播影响力榜",
+    cycle: "",
+    notice: "",
+    rail: ["全站"],
+    rows: [
+      ["大斌", "", "", 0.779, "", "", ""],
+      ["奇喵君故事", "", "", 0.768, "", "", ""],
+      ["头陀渊讲故事", "", "", 0.762, "", "", ""],
+      ["有声的紫襟", "", "", 0.752, "", "", ""],
+      ["多多罗", "", "", 0.742, "", "", ""],
+      ["曾仕强学堂", "", "", 0.700, "", "", ""],
+      ["宝宝巴士", "", "", 0.694, "", "", ""],
+      ["一刀苏苏", "", "", 0.690, "", "", ""],
+      ["天马座动画剧场", "", "", 0.690, "", "", ""],
+      ["米小圈", "", "", 0.688, "", "", ""],
+      ["瓜子听书", "", "", 0.684, "", "", ""],
+      ["小默127127", "", "", 0.683, "", "", ""]
+    ]
+  },
+  growth: {
+    title: "成长突破榜",
+    cycle: "",
+    notice: "",
+    rail: ["全站"],
+    rows: [
+      ["重塑心灵心理训练中心", "", "", 1.016, "", "", ""],
+      ["混知FM", "", "", 0.891, "", "", ""],
+      ["小鹿小鹿工作室", "", "", 0.749, "", "", ""],
+      ["霓达播客NidaMedia", "", "", 0.734, "", "", ""],
+      ["昆虫大叔", "", "", 0.619, "", "", ""],
+      ["不熬夜文史局", "", "", 0.600, "", "", ""],
+      ["王金鑫老师", "", "", 0.556, "", "", ""],
+      ["开心锤锤", "", "", 0.549, "", "", ""],
+      ["多彩故事树", "", "", 0.492, "", "", ""],
+      ["天地童声", "", "", 0.461, "", "", ""],
+      ["十三妖仙学院", "", "", 0.437, "", "", ""],
+      ["剧舞吧小宇宙", "", "", 0.434, "", "", ""]
+    ]
+  },
+  category: {
+    title: "品类创作者榜",
+    cycle: "",
+    notice: "",
+    rail: ["故事演绎", "价值表达", "亲子陪伴", "播客"],
+    groups: {
+"故事演绎": [
+                  [
+                        "头陀渊讲故事",
+                        "",
+                        "",
+                        2.0,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "有声的紫襟",
+                        "",
+                        "",
+                        1.975,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "一刀苏苏",
+                        "",
+                        "",
+                        1.933,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "白夜剧场",
+                        "",
+                        "",
+                        1.922,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "单田芳评书",
+                        "",
+                        "",
+                        1.912,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "德云社郭德纲相声VIP",
+                        "",
+                        "",
+                        1.901,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "熊猫青云_云之声",
+                        "",
+                        "",
+                        1.846,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "云天河",
+                        "",
+                        "",
+                        1.843,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "大斌",
+                        "",
+                        "",
+                        1.834,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "姣姣兮",
+                        "",
+                        "",
+                        1.832,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "雪月之下",
+                        "",
+                        "",
+                        1.831,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "DJ杨湃",
+                        "",
+                        "",
+                        1.825,
+                        "",
+                        "",
+                        ""
+                  ]
+            ],
+            "价值表达": [
+                  [
+                        "王更新",
+                        "",
+                        "",
+                        1.987,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "一个志远",
+                        "",
+                        "",
+                        1.965,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "中信书院",
+                        "",
+                        "",
+                        1.957,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "百家讲坛",
+                        "",
+                        "",
+                        1.932,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "半条鱼儿",
+                        "",
+                        "",
+                        1.921,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "听风的蚕",
+                        "",
+                        "",
+                        1.915,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "喜马头条",
+                        "",
+                        "",
+                        1.91,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "曾仕强学堂",
+                        "",
+                        "",
+                        1.902,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "GIADA_岩中花述",
+                        "",
+                        "",
+                        1.895,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "蒙曼",
+                        "",
+                        "",
+                        1.888,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "喜马讲书",
+                        "",
+                        "",
+                        1.885,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "阿富汗村姑",
+                        "",
+                        "",
+                        1.881,
+                        "",
+                        "",
+                        ""
+                  ]
+            ],
+            "亲子陪伴": [
+                  [
+                        "宝宝巴士",
+                        "",
+                        "",
+                        2.0,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "多多罗",
+                        "",
+                        "",
+                        1.94,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "奇喵君故事",
+                        "",
+                        "",
+                        1.926,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "大中华寻宝记官方",
+                        "",
+                        "",
+                        1.874,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "东海小学广播站",
+                        "",
+                        "",
+                        1.843,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "米小圈",
+                        "",
+                        "",
+                        1.833,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "保林叔叔讲故事",
+                        "",
+                        "",
+                        1.806,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "天马座动画剧场",
+                        "",
+                        "",
+                        1.794,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "100个秘密科普馆",
+                        "",
+                        "",
+                        1.784,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "呆瓜叔叔讲故事",
+                        "",
+                        "",
+                        1.78,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "大有叔叔",
+                        "",
+                        "",
+                        1.746,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "超坦宇宙",
+                        "",
+                        "",
+                        1.735,
+                        "",
+                        "",
+                        ""
+                  ]
+            ],
+            "播客": [
+                  [
+                        "GIADA_岩中花述",
+                        "",
+                        "",
+                        1.898,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "凹凸电波",
+                        "",
+                        "",
+                        1.84,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "旭岽叨科学",
+                        "",
+                        "",
+                        1.815,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "读客熊猫君",
+                        "",
+                        "",
+                        1.784,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "有知有行App",
+                        "",
+                        "",
+                        1.744,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "颜晓静Athena",
+                        "",
+                        "",
+                        1.736,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "携隐Melody",
+                        "",
+                        "",
+                        1.732,
+                        "",
+                        "",
+                        "新上榜"
+                  ],
+                  [
+                        "春典JARGON",
+                        "",
+                        "",
+                        1.727,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "文化有限的星光",
+                        "",
+                        "",
+                        1.72,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "刘飞Lufy",
+                        "",
+                        "",
+                        1.72,
+                        "",
+                        "",
+                        ""
+                  ],
+                  [
+                        "阿坑是个坑",
+                        "",
+                        "",
+                        1.716,
+                        "",
+                        "",
+                        "新上榜"
+                  ],
+                  [
+                        "杨天真本真",
+                        "",
+                        "",
+                        1.715,
+                        "",
+                        "",
+                        ""
+                  ]
+            ]
+    }
+  }
+};
+
+const tabs = [
+  ["main", "主播影响力"],
+  ["growth", "成长突破"],
+  ["category", "品类榜"]
+];
+
+let activeTab = "main";
+let activeRail = "全站";
+
+const rankTabs = document.querySelector("#rankTabs");
+const sideRail = document.querySelector("#sideRail");
+const notice = document.querySelector("#notice");
+const rankCycle = document.querySelector("#rankCycle");
+const rankTitle = document.querySelector("#rankTitle");
+const ruleCard = document.querySelector("#ruleCard");
+const ruleToggle = document.querySelector("#ruleToggle");
+const podium = document.querySelector("#podium");
+const rankList = document.querySelector("#rankList");
+let rulesVisible = false;
+
+function avatarText(name) {
+  return name.replace(/[A-Za-z0-9]/g, "").slice(0, 2) || name.slice(0, 2);
+}
+
+function rowMatches(row, rail) {
+  if (rail === "全站") return true;
+  return row[2].includes(rail) || row[1].includes(rail);
+}
+
+function rowsForCurrentView() {
+  const data = rankData[activeTab];
+  if (activeTab === "category") return data.groups[activeRail] || [];
+  return data.rows.filter((row) => rowMatches(row, activeRail));
+}
+
+function displayMetrics(row, index) {
+  const rowMetrics = row.slice(4, 7).filter(Boolean);
+  const lift = [36, 31, 28, 24, 21, 19, 17, 15, 13, 11, 9, 8][index] || 6;
+
+  if (rowMetrics.includes("新上榜")) {
+    return [`影响力 +${lift}%`, "新上榜"];
+  }
+
+  if (rowMetrics.length) return rowMetrics;
+
+  return [`影响力 +${lift}%`];
+}
+
+function ruleText() {
+  if (activeTab === "main") {
+    return "计算维度：有效播放时长 15% + EDAU 15% + 分享量 15% + 新增关注量 15% + 收入 40%。基础得分 = 40% × 全局得分 + 60% × 品类得分；最终得分 = 基础得分 × 小品类系数。";
+  }
+  if (activeTab === "growth") {
+    return "计算维度：收入增长率 + EDAU 增长率。基础得分 = 40% × 全局得分 + 60% × 品类得分；最终得分 = 基础得分 × 小品类系数。";
+  }
+  return "计算维度：有效播放 + 新增订阅。最终得分 = 60% × 细分类目得分 + 40% × 一级品类得分。";
+}
+
+function renderTabs() {
+  rankTabs.innerHTML = tabs.map(([key, label]) => (
+    `<button class="tab ${key === activeTab ? "active" : ""}" type="button" data-tab="${key}">${label}</button>`
+  )).join("");
+}
+
+function renderRail(data) {
+  sideRail.innerHTML = data.rail.map((item) => (
+    `<button class="rail-item ${item === activeRail ? "active" : ""}" type="button" data-rail="${item}">${item}</button>`
+  )).join("");
+}
+
+function renderPodium(rows) {
+  podium.innerHTML = rows.slice(0, 3).map((row, index) => (
+    `<article class="podium-card">
+      <span class="podium-rank">TOP${index + 1}</span>
+      <div class="avatar">${avatarText(row[0])}</div>
+      <p class="podium-name">${row[0]}</p>
+    </article>`
+  )).join("");
+}
+
+function renderRows(rows) {
+  if (!rows.length) {
+    rankList.innerHTML = `<div class="empty">播客榜数据还未准备好。建议在此保留入口，展示“数据建设中”状态，并在品类字段、圈选逻辑和运营承接方案确定后自动切换为榜单列表。</div>`;
+    return;
+  }
+
+  rankList.innerHTML = rows.map((row, index) => {
+    const chips = displayMetrics(row, index).map((metric) => (
+      `<span class="metric-chip">${metric}</span>`
+    )).join("");
+    const metricLine = chips ? `<div class="metric-line">${chips}</div>` : "";
+    return `<article class="rank-row">
+      <div class="rank-num">${index + 1}</div>
+      <div class="avatar">${avatarText(row[0])}</div>
+      <div class="row-main">
+        <div class="name-line">
+          <span class="name">${row[0]}</span>
+        </div>
+        ${metricLine}
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function render() {
+  renderTabs();
+
+  const data = rankData[activeTab];
+  if (!data.rail.includes(activeRail)) activeRail = data.rail[0];
+  const rows = rowsForCurrentView();
+
+  notice.textContent = data.notice;
+  rankCycle.textContent = data.cycle;
+  rankTitle.textContent = activeTab === "category" ? `${activeRail}榜` : data.title;
+  ruleCard.textContent = ruleText();
+  ruleCard.classList.toggle("show", rulesVisible);
+  renderRail(data);
+  renderPodium(rows);
+  renderRows(rows);
+}
+
+rankTabs.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-tab]");
+  if (!button) return;
+  activeTab = button.dataset.tab;
+  rulesVisible = false;
+  activeRail = activeTab === "category" ? "故事演绎" : "全站";
+  render();
+});
+
+sideRail.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-rail]");
+  if (!button) return;
+  activeRail = button.dataset.rail;
+  render();
+});
+
+ruleToggle.addEventListener("click", () => {
+  rulesVisible = !rulesVisible;
+  render();
+});
+
+render();
+
+    </script>
+  </body>
+</html>
